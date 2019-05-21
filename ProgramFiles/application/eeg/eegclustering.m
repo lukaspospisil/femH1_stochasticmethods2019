@@ -23,6 +23,9 @@ for idx_ann = 1:in.options.nanneal
     if strcmp(in.options.type,'FEMH1PCA')
         [ S, Gamma, L, Llin, Lquad ] = femH1pca(in.X, Hreg, in.options);
     end
+    if strcmp(in.options.type,'FEMH1PCA_gpu')
+        [ S, Gamma, L, Llin, Lquad ] = femH1pca_gpu(in.X, Hreg, in.options);
+    end
 
     disp(['ann = ' num2str(idx_ann) ', L = ' num2str(L)])
     

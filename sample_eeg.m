@@ -28,9 +28,9 @@ in.P = P; % provide graph information (vertices)
 %% solve clustering problem
 % set options of clustering algorithm
 in.options = ClusteringOptions(); % set default options
-in.options.type = 'FEMH1PCA'; % FEMH1_quadprog / FEMH1 / FEMH1_gpu
-in.options.K = 5; % set number of clusters
-in.options.epssqr = 1e0; % regularization parameter
+in.options.type = 'FEMH1PCA_gpu'; % FEMH1_quadprog / FEMH1 / FEMH1_gpu
+in.options.K = 3; % set number of clusters
+in.options.epssqr = 1e1; % regularization parameter
 in.options.S_given = []; % given parameters of clusters (of size n,K), if not given then S_given = []
 in.options.qp_eps = 1e-12; % the precision of QP solver
 in.options.qp_maxit = 2e2; % max number of iterations of QP solver
@@ -38,6 +38,14 @@ in.options.eps = 1e-6; % the precision of subspace algorithm
 in.options.maxit = 30; % max number of subspace algorithm
 in.options.dispdebug = true; % display some info about progress or be quite (true/false)
 in.options.nanneal = 1;
+
+% prepare gpu
+if strcmp(in.options.type, 'FEMH1PCA_gpu')
+    in.options.gpudev = gpuDevice();
+    reset(in.options.gpudev);
+    
+    addpath('CudaFiles')
+end
 
 % solve the problem using our clustering method
 [out] = eegclustering(in);

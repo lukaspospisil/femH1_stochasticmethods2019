@@ -11,7 +11,7 @@ if false
 else
     % generate new data
     addpath('data/signal') % benchmark generator
-    X_true = generate_signal_n1_K3(1);
+    X_true = generate_signal_n1_K3(50);
 %    X_true = generate_signal_n5_K3(1);
     sigma = 1.5; % noise parameter
     X = X_true + sigma*randn(size(X_true)); % add noise
@@ -38,6 +38,8 @@ in.options.dispdebug = true; % display some info about progress or be quite (tru
 if strcmp(in.options.type, 'FEMH1_gpu')
     in.options.gpudev = gpuDevice();
     reset(in.options.gpudev);
+    
+    addpath('CudaFiles')
 end
 
 % solve the problem using our clustering method

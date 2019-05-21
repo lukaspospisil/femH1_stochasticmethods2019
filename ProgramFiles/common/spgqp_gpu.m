@@ -1,4 +1,4 @@
-function [ x, it, hess_mult ] = spgqp_gpu(A, b, x, K, normA, my_eps, max_it)
+function [ x, it, hess_mult ] = spgqp_gpu(A, b, x, K, normA, my_eps, max_it, gpudev)
 %SPGQP Spectral Projected Gradient method for simplex-constrained QP
 %
 % More details:
@@ -20,16 +20,17 @@ sigma3 = 1e4;
 hess_mult = 0;
 it = 0;
 
-T = length(x0)/K;
+T = length(x)/K;
 
 % prepare projection kernel
-projection_temp = zeros(length(x0),'gpuArray'); % temp vector in projection
+projection_temp = zeros(size(x),'gpuArray'); % temp vector in projection
 projection_kernel = parallel.gpu.CUDAKernel( 'CUDAprojection_simplexes.ptx', 'CUDAprojection_simplexes.cu' );
 projection_kernel.ThreadBlockSize = projection_kernel.MaxThreadsPerBlock;
-projection_kernel.GridSize = ceil(T/obj.projection_kernel.MaxThreadsPerBlock);
+projection_kernel.GridSize = ceil(T/projection_kernel.MaxThreadsPerBlock);
 
 % perform x = projection_simplex(x0)
-feval( projection_kernel, x, projection_temp, T, K );
+x = feval( projection_kernel, x, projection_temp, T, K );
+wait(gpudev);
 
 g = A*x - b; hess_mult = hess_mult + 1;
 f = get_function_value( x, g, b);
@@ -47,7 +48,8 @@ fss(1) = f;
 while it < max_it
     % perform d = projection_simplex(x-alpha_bb*g,K) - x;
     d = x-alpha_bb*g;
-    feval( projection_kernel, d, projection_temp, T, K );
+    d = feval( projection_kernel, d, projection_temp, T, K );
+    wait(gpudev);
     d = d - x;
     
     Ad = A*d; hess_mult = hess_mult + 1;

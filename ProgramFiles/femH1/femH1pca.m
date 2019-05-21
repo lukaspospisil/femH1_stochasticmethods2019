@@ -5,7 +5,7 @@ function [ S, Gamma, L, Llin, Lquad ] = femH1pca(X,Hreg,options )
 K = options.K;
 
 %TODO: make as option
-m_max = 2;
+m_max = 5;
 rel_err = 0;%1e-12;
 
 % check sizes of input variables
@@ -71,8 +71,10 @@ while it < maxit % practical stopping criteria is present after computing new L 
         Gamma2 = round_gamma(Gamma);
         for k=1:K
             if sum(Gamma2(k,:)) > 0
+                tic
                 [S.Q{k},S.lambdas{k},S.Xmean{k},S.lambdas_all_sum{k},S.rel_err{k}] = ...
                     compute_pca(X(:,Gamma2(k,:) == 1),m_max,rel_err);
+                disp(['prdel: ' num2str(toc)])
                 
                 Xreduced = S.Q{k}'*(X - kron(ones(1,T),S.Xmean{k}));
                 Xrec = S.Q{k}*Xreduced + kron(ones(1,T),S.Xmean{k});
