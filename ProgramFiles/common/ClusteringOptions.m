@@ -17,6 +17,8 @@ classdef ClusteringOptions
         gpudev          % on which GPU to compute, result of gpuDevice() (only for *_gpu variant)
         
         dispdebug       % plot info about progress or be quite (true/false)
+        
+        pca_m           % PCA parameter
     end
     
     methods
@@ -38,6 +40,8 @@ classdef ClusteringOptions
             obj.gpudev = [];
             
             opt.dispdebug = true;
+            
+            opt.pca_m = 5;
         end
         
     end

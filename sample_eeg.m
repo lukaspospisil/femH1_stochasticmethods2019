@@ -12,7 +12,7 @@ X_true = []; % we don't have exact signal
 % For the sake of simplicity and speed, we will first consider only
 % the first few measurements from these data
 %in.X=X(1:64,1:500);
-in.X=X(1:64,:);
+in.X=X(1:64,1:100);
 
 % print informations of the data
 [R,T]=size(in.X);
@@ -32,12 +32,13 @@ in.options.type = 'FEMH1PCA_gpu'; % FEMH1_quadprog / FEMH1 / FEMH1_gpu
 in.options.K = 3; % set number of clusters
 in.options.epssqr = 1e1; % regularization parameter
 in.options.S_given = []; % given parameters of clusters (of size n,K), if not given then S_given = []
-in.options.qp_eps = 1e-12; % the precision of QP solver
-in.options.qp_maxit = 2e2; % max number of iterations of QP solver
+in.options.qp_eps = 1e-6; % the precision of QP solver
+in.options.qp_maxit = 1e2; % max number of iterations of QP solver
 in.options.eps = 1e-6; % the precision of subspace algorithm
-in.options.maxit = 30; % max number of subspace algorithm
+in.options.maxit = 1e2; % max number of subspace algorithm
 in.options.dispdebug = true; % display some info about progress or be quite (true/false)
 in.options.nanneal = 1;
+in.options.pca_m = 2;
 
 % prepare gpu
 if strcmp(in.options.type, 'FEMH1PCA_gpu')
@@ -48,7 +49,9 @@ if strcmp(in.options.type, 'FEMH1PCA_gpu')
 end
 
 % solve the problem using our clustering method
+tic
 [out] = eegclustering(in);
+disp(['Problem solved in ' num2str(toc) 's'])
 
 % it is k-means like analysis
 if or(strcmp(in.options.type,'FEMH1'),strcmp(in.options.type,'FEMH1_gpu'))
@@ -75,7 +78,7 @@ if or(strcmp(in.options.type,'FEMH1'),strcmp(in.options.type,'FEMH1_gpu'))
     end
 end
 
-if strcmp(in.options.type,'FEMH1PCA')
+if or(strcmp(in.options.type,'FEMH1PCA'),strcmp(in.options.type,'FEMH1PCA_gpu'))
     % compute reconstructed signal
     [ X_rec ] = xrec_eeg( out.S, out.Gamma );
     

@@ -10,8 +10,8 @@ for r_idx = 1:length(R_to_plot)
 %    title([num2str(r) '. electrode'])
 
     hold on
-    plot(1:T,X(r,:),'b')
-    plot(1:T,X_rec(r,:),'r')
+    plot(1:T,X(r,:),'b','Color',[0.7,0.7,0.7],'LineWidth',1.0)
+    plot(1:T,X_rec(r,:),'r','LineWidth',2.0)
     axis([1,T,-200,200])
 
 %    xlabel('$t$','Interpreter','latex')

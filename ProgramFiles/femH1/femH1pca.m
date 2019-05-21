@@ -5,7 +5,7 @@ function [ S, Gamma, L, Llin, Lquad ] = femH1pca(X,Hreg,options )
 K = options.K;
 
 %TODO: make as option
-m_max = 5;
+m_max = options.pca_m;
 rel_err = 0;%1e-12;
 
 % check sizes of input variables
@@ -42,6 +42,7 @@ Gamma_sum = sum(Gamma,1);
 for k=1:K
     Gamma(k,:) = Gamma(k,:)./Gamma_sum;
 end
+Gamma = round_gamma(Gamma);
 gamma_vec = reshape(Gamma',T*K,1); % vectorized form of gamma used in QP
 
 % prepare QP objects
@@ -68,13 +69,10 @@ while it < maxit % practical stopping criteria is present after computing new L 
     
     % compute S
     if isempty(options.S_given)
-        Gamma2 = round_gamma(Gamma);
         for k=1:K
-            if sum(Gamma2(k,:)) > 0
-                tic
+            if sum(Gamma(k,:)) > 0
                 [S.Q{k},S.lambdas{k},S.Xmean{k},S.lambdas_all_sum{k},S.rel_err{k}] = ...
-                    compute_pca(X(:,Gamma2(k,:) == 1),m_max,rel_err);
-                disp(['prdel: ' num2str(toc)])
+                    compute_pca(X(:,Gamma(k,:) == 1),m_max,rel_err);
                 
                 Xreduced = S.Q{k}'*(X - kron(ones(1,T),S.Xmean{k}));
                 Xrec = S.Q{k}*Xreduced + kron(ones(1,T),S.Xmean{k});
@@ -96,13 +94,13 @@ while it < maxit % practical stopping criteria is present after computing new L 
     % solve QP problem
     [gamma_vec,itQP] = spgqp((2*options.epssqr)*HG, -g, gamma_vec, K, options.epssqr*normH, options.qp_eps, options.qp_maxit);
     
-    Gamma = reshape(gamma_vec,T,K)'; % TODO: it is really necessary to keep both of Gamma and gamma_vec?
-    
     % recompute coeffs based on new gamma
-    Gamma2 = round_gamma(Gamma);
+    Gamma = round_gamma(reshape(gamma_vec,T,K)'); % TODO: it is really necessary to keep both of Gamma and gamma_vec?
     for k=1:K
-        if and(sum(Gamma2(k,:)) > 0,~isempty(S.Q{k}))
-            S.coeff{k} = S.Q{k}'*(X(:,Gamma2(k,:)==1) - kron(ones(1,sum(Gamma2(k,:))),S.Xmean{k}));
+        if and(sum(Gamma(k,:)) > 0,~isempty(S.Q{k}))
+            S.coeff{k} = S.Q{k}'*(X(:,Gamma(k,:)==1) - kron(ones(1,sum(Gamma(k,:))),S.Xmean{k}));
+        else
+            S.coeff{k} = [];
         end
     end
     
