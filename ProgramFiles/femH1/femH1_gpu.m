@@ -97,7 +97,9 @@ while it < maxit % practical stopping criteria is present after computing new L 
     g = g/(T*n);
 
     % solve QP problem
+%    [gamma_vec,itQP] = spgqp((2*options.epssqr)*HG, -g, gamma_vec, K, options.epssqr*normH, options.qp_eps, options.qp_maxit);
     [gamma_vec,itQP] = spgqp_gpu((2*options.epssqr)*HG, -g, gamma_vec, K, options.epssqr*normH, options.qp_eps, options.qp_maxit, options.gpudev);
+
     Gamma = reshape(gamma_vec,T,K)';
 
     % compute new function value
