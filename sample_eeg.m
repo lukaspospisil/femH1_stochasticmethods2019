@@ -28,7 +28,7 @@ in.P = P; % provide graph information (vertices)
 %% solve clustering problem
 % set options of clustering algorithm
 in.options = ClusteringOptions(); % set default options
-in.options.type = 'FEMH1PCA_gpu'; % FEMH1_quadprog / FEMH1 / FEMH1_gpu
+in.options.type = 'FEMH1PCA'; % FEMH1_quadprog / FEMH1 / FEMH1_gpu
 in.options.K = 3; % set number of clusters
 in.options.epssqr = 1e1; % regularization parameter
 in.options.S_given = []; % given parameters of clusters (of size n,K), if not given then S_given = []
