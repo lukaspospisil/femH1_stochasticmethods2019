@@ -11,9 +11,9 @@ if false
 else
     % generate new data
     addpath('data/signal') % benchmark generator
-    X_true = generate_signal_n1_K3(50);
+    X_true = generate_signal_n1_K3(10);
 %    X_true = generate_signal_n5_K3(1);
-    sigma = 1.5; % noise parameter
+    sigma = 0.5; % noise parameter
     X = X_true + sigma*randn(size(X_true)); % add noise
 %    save('data.mat','X'); % save the data, maybe we will use it later?
 end
@@ -26,7 +26,7 @@ in.X = X;
 in.options = ClusteringOptions(); % set default options
 in.options.type = 'FEMH1'; % FEMH1_quadprog / FEMH1 / FEMH1_gpu
 in.options.K = 3; % set number of clusters
-in.options.epssqr = 1e-1; % regularization parameter
+in.options.epssqr = 1e-2; % regularization parameter
 in.options.S_given = [1,2,3];%[]; % given parameters of clusters (of size n,K), if not given then S_given = []
 in.options.qp_eps = 1e-6; % the precision of QP solver
 in.options.qp_maxit = 1e2; % max number of iterations of QP solver
